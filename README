@@ -1,0 +1,5 @@
+# Silexicon
+
+This is a basic skeleton for building a HATEOAS compliant REST API using the excellent Silex microframework. It is not
+production ready and stands on the shoulders of other great GitHub projects that you probably want to use instead of
+this one. At least for now. :)
