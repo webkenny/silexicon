@@ -46,10 +46,7 @@ class AppControllerProvider implements ControllerProviderInterface, ServiceProvi
     {
         $controllers = $app['controllers_factory'];
 
-        $controllers->get('/', "Fun\\Controller\\CampaignController::index");
-        $controllers->post('/', "Fun\\Controller\\CampaignController::store");
-        $controllers->get('/{id}', "Fun\\Controller\\CampaignController::show");
-        $controllers->post('/{id}', "Fun\\Controller\\CampaignController::edit");
+        $controllers->get('/', "App\\Controller\\AppController::index");
 
         return $controllers;
     }
