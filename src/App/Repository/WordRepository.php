@@ -7,11 +7,11 @@ use Silex\Provider\DoctrineServiceProvider;
 class WordRepository implements RepositoryInterface {
     protected $db;
 
-    public function __construct(DoctrineServiceProvider $provider) {
-        $this->db = $provider;
+    public function __construct() {
+
     }
 
     public function read($fields) {
-        
+
     }
 }

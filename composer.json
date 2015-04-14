@@ -2,7 +2,8 @@
   "require": {
     "silex/silex": "~1.2",
     "willdurand/hateoas": "@stable",
-    "symfony/yaml": "~2.6"
+    "symfony/yaml": "~2.6",
+    "doctrine/dbal": "~2.5"
   },
   "autoload": {
     "psr-0": {

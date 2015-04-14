@@ -21,6 +21,6 @@ class WordController {
     }
 
     public function search() {
-        return "A list of words because list is some kind of reserved function. Oh PHP you vex me!";
+        // var_dump($app['db']->fetchAll('SELECT * FROM entries LIMIT 20'));
     }
 }
