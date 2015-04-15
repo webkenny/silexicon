@@ -4,7 +4,8 @@
     "willdurand/hateoas": "@stable",
     "symfony/yaml": "~2.6",
     "doctrine/dbal": "~2.5",
-    "guzzlehttp/guzzle": "~5.2"
+    "guzzlehttp/guzzle": "~5.2",
+    "league/fractal": "0.12.*"
   },
   "autoload": {
     "psr-0": {
