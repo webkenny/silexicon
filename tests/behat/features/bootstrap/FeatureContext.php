@@ -10,6 +10,9 @@ use Behat\Gherkin\Node\TableNode;
  */
 class FeatureContext implements Context, SnippetAcceptingContext
 {
+    protected $client;
+
+
     /**
      * Initializes context.
      *

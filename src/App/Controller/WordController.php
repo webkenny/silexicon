@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 
+use Symfony\Component\HttpFoundation\Response;
+
 class WordController {
     public function create() {
         return 'Oh hai!';
@@ -21,6 +23,6 @@ class WordController {
     }
 
     public function search() {
-        // var_dump($app['db']->fetchAll('SELECT * FROM entries LIMIT 20'));
+        // Every day I'm hustlin'
     }
 }
