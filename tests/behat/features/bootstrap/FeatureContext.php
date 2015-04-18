@@ -12,10 +12,12 @@ use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 
+use PhpSpec\ObjectBehavior;
+
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext implements Context, CustomSnippetAcceptingContext
+class FeatureContext extends ObjectBehavior implements Context, CustomSnippetAcceptingContext
 {
     /**
      * Guzzle HTTP Client
@@ -56,7 +58,7 @@ class FeatureContext implements Context, CustomSnippetAcceptingContext
      * You can also pass arbitrary arguments to the
      * context constructor through behat.yml.
      *
-     * @param array $parameters context parameters
+     * @todo Send parameters to this constructor once we learn how to Behat. :)
      */
     public function __construct()
     {
@@ -85,8 +87,8 @@ class FeatureContext implements Context, CustomSnippetAcceptingContext
                     $this->response = $this->client->$method($resource);
             }
         }
-        catch (BadResponseException $e) {
-            $response = $e->getReponse();
+        catch (\GuzzleHttp\Exception\ClientException $e) {
+            $response = $e->getResponse();
 
             // Sometimes the request will fail, at which point we have
             // no response at all. Let Guzzle give an error here, it's
@@ -105,30 +107,46 @@ class FeatureContext implements Context, CustomSnippetAcceptingContext
     public function iGetAResponse($statusCode)
     {
         $response = $this->getResponse();
-        $contentType = $response->getHeader('Content-Type');
-
-        if ($contentType === 'application/json') {
-            $bodyOutput = $response->getBody();
-        } else {
-            $bodyOutput = 'Output is '.$contentType.', which is not JSON and is therefore scary. Run the request manually.';
+        if((int) $response->getStatusCode() !== (int) $statusCode) {
+            throw new Exception("You expected $statusCode but received " . $response->getStatusCode());
         }
-        assertSame((int) $statusCode, (int) $this->getResponse()->getStatusCode(), $bodyOutput);
     }
 
     /**
      * @Then /^scope into the "([^"]*)" property$/
      */
-    public function scopeIntoTheProperty($arg1)
+    public function scopeIntoTheProperty($scope)
     {
-        throw new PendingException();
+        $this->scope = $scope;
     }
 
     /**
      * @Then /^the properties exist:$/
      */
-    public function thePropertiesExist(PyStringNode $string)
+    public function thePropertiesExist(PyStringNode $propertiesString)
     {
-        throw new PendingException();
+        foreach (explode("\n", (string) $propertiesString) as $property) {
+            $this->thePropertyExists($property);
+        }
+    }
+
+    /**
+     * @Given /^the "([^"]*)" property exists$/
+     */
+    public function thePropertyExists($property)
+    {
+        $payload = $this->getScopePayload();
+        $message = sprintf(
+          'Asserting the [%s] property exists in the scope [%s]: %s',
+          $property,
+          $this->scope,
+          json_encode($payload)
+        );
+
+        if (is_object($payload)) {
+            print_r($payload);
+        }
+
     }
 
     /**
@@ -137,5 +155,81 @@ class FeatureContext implements Context, CustomSnippetAcceptingContext
     public function thePropertyIsAString($arg1)
     {
         throw new PendingException();
+    }
+
+    /**
+     * Checks the response exists and returns it.
+     *
+     * @return  GuzzleHttp\Message\Response
+     * @throws  Exception
+     */
+    protected function getResponse()
+    {
+        if (!$this->response) {
+            throw new Exception("You must first make a request to check a response.");
+        }
+        return $this->response;
+    }
+
+
+    /**
+     * Return the response payload from the current response.
+     *
+     * @return  mixed
+     * @throws  mixed
+     */
+    protected function getResponsePayload()
+    {
+        if (! $this->responsePayload) {
+            $json = json_decode($this->getResponse()->getBody(true));
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $message = 'Failed to decode JSON body ';
+
+                switch (json_last_error()) {
+                    case JSON_ERROR_DEPTH:
+                        $message .= '(Maximum stack depth exceeded).';
+                        break;
+                    case JSON_ERROR_STATE_MISMATCH:
+                        $message .= '(Underflow or the modes mismatch).';
+                        break;
+                    case JSON_ERROR_CTRL_CHAR:
+                        $message .= '(Unexpected control character found).';
+                        break;
+                    case JSON_ERROR_SYNTAX:
+                        $message .= '(Syntax error, malformed JSON).';
+                        break;
+                    case JSON_ERROR_UTF8:
+                        $message .= '(Malformed UTF-8 characters, possibly incorrectly encoded).';
+                        break;
+                    default:
+                        $message .= '(Unknown error).';
+                        break;
+                }
+
+                throw new Exception($message);
+            }
+
+            $this->responsePayload = $json;
+        }
+
+        return $this->responsePayload;
+    }
+
+    /**
+     * Returns the payload from the current scope within
+     * the response.
+     *
+     * @return mixed
+     */
+    protected function getScopePayload()
+    {
+        $payload = $this->getResponsePayload();
+
+        if (! $this->scope) {
+            return $payload;
+        }
+
+        return $this->arrayGet($payload, $this->scope);
     }
 }

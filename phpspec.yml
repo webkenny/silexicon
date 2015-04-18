@@ -1,0 +1,4 @@
+suites:
+    app_suite:
+        namespace: 'App\Entity'
+        spec_path: 'tests/phpspec/'
