@@ -13,5 +13,5 @@ Scenario: Finding a specific word
     And the "word" property is a string
 
 Scenario: Listing all words is not possible
-  When I request "GET /places"
+  When I request "GET /words"
   Then I get a "400" response

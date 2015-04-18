@@ -144,7 +144,7 @@ class FeatureContext extends ObjectBehavior implements Context, CustomSnippetAcc
         );
 
         if (is_object($payload)) {
-            print_r($payload);
+
         }
 
     }
@@ -152,9 +152,11 @@ class FeatureContext extends ObjectBehavior implements Context, CustomSnippetAcc
     /**
      * @Then /^the "([^"]*)" property is a string$/
      */
-    public function thePropertyIsAString($arg1)
+    public function thePropertyIsAString($property)
     {
-        throw new PendingException();
+        if(! is_string($property)){
+            throw new Exception("The property named $property is not a string");
+        }
     }
 
     /**
@@ -231,5 +233,43 @@ class FeatureContext extends ObjectBehavior implements Context, CustomSnippetAcc
         }
 
         return $this->arrayGet($payload, $this->scope);
+    }
+
+    /**
+     * Get an item from an array using "dot" notation.
+     *
+     * @copyright   Taylor Otwell
+     * @link        http://laravel.com/docs/helpers
+     * @param       array   $array
+     * @param       string  $key
+     * @return      mixed
+     */
+    protected function arrayGet($array, $key)
+    {
+        if (is_null($key)) {
+            return $array;
+        }
+
+        // if (isset($array[$key])) {
+        //     return $array[$key];
+        // }
+
+        foreach (explode('.', $key) as $segment) {
+
+            if (is_object($array)) {
+                if (! isset($array->{$segment})) {
+                    return;
+                }
+                $array = $array->{$segment};
+
+            } elseif (is_array($array)) {
+                if (! array_key_exists($segment, $array)) {
+                    return;
+                }
+                $array = $array[$segment];
+            }
+        }
+
+        return $array;
     }
 }

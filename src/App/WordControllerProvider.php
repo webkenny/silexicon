@@ -46,7 +46,7 @@ class WordControllerProvider implements ControllerProviderInterface, ServiceProv
     {
         $controllers = $app['controllers_factory'];
 
-        $controllers->get('/{id}', "App\\Controller\\WordController::show")->bind('show.id');
+        $controllers->get('/{theword}', "App\\Controller\\WordController::show")->bind('show.theword');
         $controllers->post('/', "App\\Controller\\WordController::create");
         $controllers->get('/', "App\\Controller\\WordController::search");
         $controllers->put('/{id}', "App\\Controller\\WordController::update");
